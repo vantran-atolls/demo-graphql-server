@@ -1,0 +1,222 @@
+type Query {
+  """
+  Gets a specific campaign using its ID.
+  Available publicly to be used by Code Components.
+  """
+  getAcquisitionCampaign(id: ID!): AcquisitionCampaignResponse
+
+  """
+  Gets a specific internal campaign by its ID.
+  """
+  getInternalAcquisitionCampaign(
+    input: GetInternalAcquisitionCampaignInput
+  ): InternalAcquisitionCampaignResponse
+
+  """
+  Retrieve campaigns for the specified items.
+  Return campaign objects in the same order of items.
+  AcquisitionCampaign may be null if there's no campaign associated with the specified item.
+  """
+  getAcquisitionCampaigns(
+    input: GetAcquisitionCampaignsInput
+  ): AcquisitionCampaignsResponse
+
+  retailersByClientDomain(
+    input: RetailersByClientDomainInput
+  ): RetailersByClientDomainResponse
+}
+
+type Mutation {
+  """
+  Create or update a campaign.
+  """
+  upsertAcquisitionCampaign(
+    input: UpsertAcquisitionCampaignInput
+  ): InternalAcquisitionCampaignResponse
+}
+
+"""
+AcquisitionCampaign object with only public data.
+"""
+type AcquisitionCampaign {
+  id: ID!
+  bonusType: String
+  bonusAmount: Float
+  retailers: [Retailer]
+}
+
+"""
+AcquisitionCampaign object with both public data and internal data and
+should be only be available to plugin.
+"""
+type AcquisitionCampaignWithInternal {
+  id: ID!
+
+  name: String
+  idClient: String!
+  itemId: ID!
+  collectionId: ID!
+  pageUrl: String
+
+  startDate: String!
+  endDate: String
+  campaignType: String
+  channel: String
+  agency: String
+  subChannel: String
+  costModel: String
+  costModelAmount: Float
+  adsetId: String
+  device: String
+  medium: String
+
+  bonusType: String
+  bonusAmount: Float
+  retailers: [Retailer]
+}
+
+"""
+Identification data for a specific collection item.
+"""
+input CollectionItemInput {
+  id: ID!
+  collection: ID!
+  url: String
+  name: String
+}
+
+input GetAcquisitionCampaignsInput {
+  idClient: String
+  items: [CollectionItemInput!]!
+  limit: Int
+  offset: Int
+}
+
+input GetInternalAcquisitionCampaignInput {
+  id: ID!
+  item: CollectionItemInput!
+}
+
+input RetailerInput {
+  idPool: String!
+  idClient: String!
+  name: String!
+}
+
+input AcquisitionCampaignDataInput {
+  """
+  Unique identifier of the campaign. Required for updates, auto-generated for creation.
+  """
+  id: ID
+
+  """
+  Name of the campaign, used for internal reference.
+  """
+  name: String
+
+  """
+  Start date of the campaign in ISO 8601 format.
+  """
+  startDate: String!
+
+  """
+  Optional end date of the campaign in ISO 8601 format.
+  """
+  endDate: String
+
+  """
+  Type of the campaign (e.g. SEM, DISPLAY, SOCIAL_PAID).
+  """
+  campaignType: String
+
+  """
+  Marketing channel used for this campaign.
+  """
+  channel: String
+
+  """
+  Specific sub-channel within the main channel.
+  """
+  subChannel: String
+
+  """
+  Cost model applied to this campaign (e.g. CPC, CPL, CPM).
+  """
+  costModel: String
+
+  """
+  Amount associated with the cost model.
+  """
+  costModelAmount: Float
+
+  """
+  Agency managing this campaign.
+  """
+  agency: String
+
+  """
+  Unique identifier for the ad set.
+  """
+  adsetId: String
+
+  """
+  Target device type for this campaign.
+  """
+  device: String
+
+  """
+  Medium used for this campaign.
+  """
+  medium: String
+
+  """
+  Type of bonus offered in this campaign.
+  """
+  bonusType: String
+
+  """
+  Amount of the bonus offered.
+  """
+  bonusAmount: Float
+
+  """
+  List of retailers participating in this campaign.
+  """
+  retailers: [RetailerInput]
+}
+
+input UpsertAcquisitionCampaignInput {
+  idClient: String!
+  item: CollectionItemInput!
+  data: AcquisitionCampaignDataInput!
+}
+
+type AcquisitionCampaignResponse {
+  campaign: AcquisitionCampaign
+}
+
+"""
+Response data types
+"""
+type InternalAcquisitionCampaignResponse {
+  campaign: AcquisitionCampaignWithInternal
+}
+
+type AcquisitionCampaignsResponse {
+  campaigns: [AcquisitionCampaignWithInternal]
+}
+
+input RetailersByClientDomainInput {
+  idClient: String!
+  limit: Int
+}
+
+type Retailer {
+  idPool: String!
+  idClient: String!
+  name: String!
+}
+
+type RetailersByClientDomainResponse {
+  retailers: [Retailer]
+}
